@@ -350,6 +350,8 @@ Une fois l'application installée et définie comme application par défaut, l'U
 
 **Vérifications déjà rapportées :** acquisition GPS et création de traces, lecture dans un outil de visualisation GPX, fonctionnement des commandes et des LED, téléchargement HTTP depuis une autre machine, consultation de `/liste` et récupération d’un GPX précis avec `-O`, réparation d'un fichier volontairement tronqué et rotation à **20 GPX**.
 
+Le démarrage automatique de Car_Traces, définie comme application par défaut (`DEFAULT`) dans Arduino App Lab, a également été validé. L'application redémarre automatiquement lors de la mise sous tension de l'UNO Q, qu'elle ait été laissée active ou arrêtée manuellement avant l'arrêt de la carte.
+
 **Avant publication définitive :** réaliser plusieurs trajets réels, vérifier la reprise après perte de réception (tunnel), contrôler les fichiers téléchargés et tester une coupure d'alimentation dans des conditions sûres. Ne pas réaliser de manipulation électrique pendant la conduite.
 
 ## 12. Intérêt pédagogique
