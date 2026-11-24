@@ -81,7 +81,10 @@ La logique métier de Car_Traces peut être représentée par une **machine à �
 
 Contrairement à une implémentation classique utilisant une énumération (`enum`) et une variable représentant l'état courant, Car_Traces utilise une **représentation implicite des états**.
 
-L'état applicatif est directement déterminé par la combinaison de deux variables Python :
+Le mode de fonctionnement de l'application est directement déterminé par deux informations d'état :
+
+- `_enreg["actif"]` : valeur booléenne associée à la clé `"actif"` du dictionnaire `_enreg`, indiquant si un enregistrement GPS est en cours ;
+- `serveur` : variable contenant la référence au serveur HTTP lorsqu'il est actif, ou `None` lorsqu'il est arrêté.
 
 - `_enreg["actif"]` : indique si un enregistrement GPS est en cours ;
 - `serveur` : contient la référence au serveur HTTP lorsqu'il est actif, ou `None` lorsqu'il est arrêté.
