@@ -66,7 +66,7 @@ Ces fonctions sont enregistrées avec `Bridge.provide(...)`, puis l'application 
 | **B** | `STOP` | Terminer l'enregistrement en écrivant les balises de fermeture GPX | B : **fix GPS récent**, et non état STOP |
 | **C** | `HTTP` | Activer/désactiver le serveur HTTP si aucun enregistrement n'est actif | C : serveur HTTP actif |
 
-**Attention :** la correspondance des LED est indépendante de la signification des commandes des boutons. La LED B indique la réception GPS, pas l'arrêt de l'enregistrement.
+**Attention :** les LED indiquent l'état de l'application et non l'état des boutons. En particulier, la LED B indique la disponibilité d'un fix GPS récent, indépendamment de la commande `STOP` associée au bouton B.
 
 ### Transitions autorisées
 
