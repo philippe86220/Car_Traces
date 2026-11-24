@@ -75,8 +75,6 @@ Ces fonctions sont enregistrées avec `Bridge.provide(...)`, puis l'application 
 - **STOP** termine l'enregistrement actif ; sans enregistrement, la commande est sans effet.
 - Un nouvel appui sur **HTTP** désactive le serveur lorsqu'il est déjà actif.
 
-Le MCU n'entretient pas une deuxième machine à états : les décisions sont prises par `main.py`.
-
 ### Machine à états côté MPU
 
 La logique métier de Car_Traces peut être représentée par une **machine à états finis** (*Finite State Machine*, FSM).
