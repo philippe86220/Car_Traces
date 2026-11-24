@@ -213,8 +213,6 @@ bricks: []
 icon: 🚗
 ```
 
-L'icône **🚗** remplace l'icône provisoire 😀. La description est également proposée pour mieux identifier l'application. **Vérifier la prise en charge de cette icône par la version d'App Lab utilisée.**
-
 **Origine de cette configuration :** échange avec **ptillich** sur le forum Arduino, [message nº 11](https://forum.arduino.cc/t/arduino-app-lab-exposing-a-json-api-directly-from-main-py-without-a-custom-brick/1466096/11). La publication du port simplifie l’accès depuis l’hôte et les autres machines du réseau ; elle n’est **pas nécessaire pour que le serveur Python démarre** dans son conteneur. Vérification effectuée avec `docker ps` : `0.0.0.0:8000->8000/tcp` et `:::8000->8000/tcp`.
 
 ## 10. Installation et mise en service
