@@ -31,20 +31,20 @@ Le sketch utilise `Serial1.begin(9600)` pour le GPS et le bus utilisé par `Modu
           v                                  v
  +---------------------------------------------------+
  | MCU — sketch.ino                                  |
- | - Décode les trames GPS avec TinyGPSPlus           |
- | - Détecte les fronts d'appui sur A, B et C         |
- | - Envoie les données et commandes au MPU           |
- | - Affiche sur les LED l'état reçu du MPU           |
+ | - Décode les trames GPS avec TinyGPSPlus          |
+ | - Détecte les fronts d'appui sur A, B et C        |
+ | - Envoie les données et commandes au MPU          |
+ | - Affiche sur les LED l'état reçu du MPU          |
  +-----------------------+---------------------------+
                          | Arduino Bridge
                          v
  +---------------------------------------------------+
  | MPU — python/main.py                              |
- | - État applicatif et décisions START/STOP/HTTP     |
- | - Vérification du fix récent                       |
- | - Création, écriture et rotation des fichiers GPX  |
- | - Réparation au démarrage des GPX non fermés       |
- | - Serveur HTTP de consultation et téléchargement   |
+ | - État applicatif et décisions START/STOP/HTTP    |
+ | - Vérification du fix récent                      |
+ | - Création, écriture et rotation des fichiers GPX |
+ | - Réparation au démarrage des GPX non fermés      |
+ | - Serveur HTTP de consultation et téléchargement  |
  +---------------------------------------------------+
 ```
 
