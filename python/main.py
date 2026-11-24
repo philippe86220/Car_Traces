@@ -288,6 +288,8 @@ class Handler(BaseHTTPRequestHandler):
 # ============================================================ Commandes physiques
 
 def _etat_leds():
+    """Calcule le masque des LEDs (bit0=enreg, bit1=fix, bit2=HTTP).
+    Interne : l'appelant doit déjà tenir _lock_commandes."""
     # Appeler sous _lock_commandes.
     with _lock:
         return ((1 if _enreg["actif"] else 0)
@@ -296,6 +298,8 @@ def _etat_leds():
 
 
 def etat_leds():
+    """Point d'entrée RPC appelé par le MCU (synchro périodique).
+    Prend _lock_commandes puis délègue à _etat_leds()."""
     with _lock_commandes:
         return _etat_leds()
 
