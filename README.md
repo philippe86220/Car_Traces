@@ -247,17 +247,24 @@ Il convient toutefois de distinguer la publication du port par Docker du démarr
 
 ## 10. Installation et mise en service
 
-1. Créer ou ouvrir l'application **Car_Traces** dans Arduino App Lab.
-2. Placer le sketch C++ dans la partie MCU et `main.py` dans la partie Python de l'application.
-3. Configurer `app.yaml`, notamment `ports: - 8000`.
-4. Installer ou vérifier les bibliothèques nécessaires au sketch.
-5. Raccorder le GPS et le Modulino Buttons conformément au schéma matériel **à ajouter**.
-6. Lancer l'application ; attendre un fix GPS récent (LED B).
-7. Appuyer sur **A** pour enregistrer, **B** pour terminer, puis **C** pour activer le serveur HTTP et récupérer les traces.
+1. Télécharger le dépôt [Car_Traces](https://github.com/philippe86220/Car_Traces) depuis GitHub au format ZIP.
+2. Importer l'application dans Arduino App Lab.
+3. Vérifier la disponibilité des bibliothèques nécessaires au sketch.
+4. Raccorder le GPS et le Modulino Buttons conformément au schéma de câblage.
+5. Lancer l'application dans Arduino App Lab.
+6. Définir **Car_Traces** comme application par défaut (`DEFAULT`) afin qu'elle démarre automatiquement à chaque mise sous tension de l'UNO Q.
 
-Le programme Python crée automatiquement `data/gpx` et répare, au démarrage, les GPX non fermés qu'il peut récupérer.
+### Utilisation
 
-**À documenter avant publication :** versions exactes d'App Lab, du firmware et des bibliothèques ; disposition définitive des fichiers du dépôt ; mode de lancement automatique retenu et éventuelles particularités de la connexion réseau.
+- Attendre l'allumage de la LED B, indiquant la disponibilité d'un fix GPS récent.
+- Appuyer sur le bouton **A** pour démarrer un enregistrement.
+- Appuyer sur le bouton **B** pour terminer l'enregistrement.
+- Appuyer sur le bouton **C** pour activer le serveur HTTP et récupérer les fichiers GPX depuis un autre ordinateur connecté au réseau local.
+- Appuyer de nouveau sur le bouton **C** pour désactiver le serveur HTTP.
+
+Le programme Python crée automatiquement le dossier `data/gpx` et tente, à chaque démarrage de l'application, de réparer les fichiers GPX non fermés.
+
+Une fois l'application installée et définie comme application par défaut, l'UNO Q fonctionne de manière autonome. Aucune connexion réseau n'est nécessaire pendant l'enregistrement des trajets.
 
 ## 11. Vérifications réalisées et validation restante
 
