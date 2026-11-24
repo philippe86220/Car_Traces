@@ -86,9 +86,6 @@ Le mode de fonctionnement de l'application est directement déterminé par deux 
 - `_enreg["actif"]` : valeur booléenne associée à la clé `"actif"` du dictionnaire `_enreg`, indiquant si un enregistrement GPS est en cours ;
 - `serveur` : variable contenant la référence au serveur HTTP lorsqu'il est actif, ou `None` lorsqu'il est arrêté.
 
-- `_enreg["actif"]` : indique si un enregistrement GPS est en cours ;
-- `serveur` : contient la référence au serveur HTTP lorsqu'il est actif, ou `None` lorsqu'il est arrêté.
-
 #### Représentation des états
 
 | État applicatif | `_enreg["actif"]` | `serveur` |
