@@ -101,8 +101,6 @@ Les états où l'enregistrement et HTTP sont simultanément actifs ne sont pas p
 
 Un document complémentaire détaille les mécanismes de communication entre les deux processeurs, les appels RPC, les valeurs de retour, les masques binaires, la synchronisation des LED et la gestion des verrous.
 
-Il a été réalisé à la suite d'échanges avec plusieurs personnes ayant étudié le code de Car_Traces, afin de faciliter la compréhension de son architecture.
-
 - [Comprendre les échanges entre le MCU et le MPU](docs/MCU_MPU_Communication.md)
 
 ## 5. Acquisition GPS et génération des GPX
