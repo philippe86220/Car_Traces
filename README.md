@@ -202,8 +202,6 @@ La documentation doit donc parler de **récupération des fichiers non fermés**
 
 ## 9. Configuration App Lab : `app.yaml`
 
-La déclaration du port est essentielle pour l'accès au serveur HTTP dans l'environnement Arduino App Lab :
-
 ```yaml
 name: Car_Traces
 description: "Enregistreur de trajets GPS au format GPX avec Arduino UNO Q"
@@ -213,7 +211,32 @@ bricks: []
 icon: 🚗
 ```
 
-**Origine de cette configuration :** échange avec **ptillich** sur le forum Arduino, [message nº 11](https://forum.arduino.cc/t/arduino-app-lab-exposing-a-json-api-directly-from-main-py-without-a-custom-brick/1466096/11). La publication du port simplifie l’accès depuis l’hôte et les autres machines du réseau ; elle n’est **pas nécessaire pour que le serveur Python démarre** dans son conteneur. Vérification effectuée avec `docker ps` : `0.0.0.0:8000->8000/tcp` et `:::8000->8000/tcp`.
+La déclaration du port `8000` dans le fichier `app.yaml` permet à Arduino App Lab de publier le port du conteneur Docker sur le système Linux hôte de l'UNO Q.
+
+Cette déclaration n'est pas nécessaire au démarrage du serveur HTTP Python à l'intérieur du conteneur, mais elle permet d'y accéder sans avoir à connaître l'adresse IP privée du conteneur.
+
+Deux possibilités d'accès au serveur HTTP sont alors offertes :
+
+- **Depuis l'UNO Q elle-même :** `http://localhost:8000`
+- **Depuis un autre ordinateur connecté au réseau local :** `http://IP_UNO_Q:8000`
+
+Dans le cadre de Car_Traces, l'UNO Q étant utilisée comme un enregistreur autonome embarqué dans un véhicule, l'utilisateur privilégiera la seconde méthode pour récupérer ses fichiers GPX depuis un autre ordinateur.
+
+La publication effective du port peut être vérifiée depuis un terminal de l'UNO Q avec la commande :
+
+```bash
+docker ps --format "table {{.Names}}\t{{.Ports}}"
+```
+
+Résultat constaté :
+
+```text
+0.0.0.0:8000->8000/tcp, :::8000->8000/tcp
+```
+
+Ce résultat confirme la publication du port `8000` sur les interfaces IPv4 et IPv6 de l'UNO Q.
+
+Il convient toutefois de distinguer la publication du port par Docker du démarrage effectif du serveur HTTP : ce dernier n'est actif qu'après son activation à l'aide du bouton C du Modulino Buttons.
 
 ## 10. Installation et mise en service
 
