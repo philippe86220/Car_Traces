@@ -77,6 +77,88 @@ Ces fonctions sont enregistrées avec `Bridge.provide(...)`, puis l'application 
 
 Le MCU n'entretient pas une deuxième machine à états : les décisions sont prises par `main.py`.
 
+### Machine à états côté MPU
+
+La logique métier de Car_Traces peut être représentée par une **machine à états finis** (*Finite State Machine*, FSM).
+
+Contrairement à une implémentation classique utilisant une énumération (`enum`) et une variable représentant l'état courant, Car_Traces utilise une **représentation implicite des états**.
+
+L'état applicatif est directement déterminé par la combinaison de deux variables Python :
+
+- `_enreg["actif"]` : indique si un enregistrement GPS est en cours ;
+- `serveur` : contient la référence au serveur HTTP lorsqu'il est actif, ou `None` lorsqu'il est arrêté.
+
+#### Représentation des états
+
+| État applicatif | `_enreg["actif"]` | `serveur` |
+|---|---|---|
+| REPOS | `False` | `None` |
+| ENREGISTREMENT | `True` | `None` |
+| TRANSFERT HTTP | `False` | Différent de `None` |
+| État interdit | `True` | Différent de `None` |
+
+La quatrième combinaison est interdite par la logique métier : l'enregistrement GPS et le serveur HTTP ne peuvent pas être simultanément actifs en fonctionnement normal.
+
+#### Diagramme des transitions
+
+```mermaid
+stateDiagram-v2
+    direction TB
+    [*] --> REPOS
+
+    REPOS --> ENREGISTREMENT : START [fix GPS récent]
+    ENREGISTREMENT --> REPOS : STOP
+
+    REPOS --> TRANSFERT_HTTP : HTTP
+    TRANSFERT_HTTP --> REPOS : HTTP
+```
+
+Ce diagramme représente les transitions réussies. Les commandes refusées, les commandes sans effet et les erreurs d'exécution n'y sont pas représentées.
+
+Il n'existe aucune transition directe entre les états ENREGISTREMENT et TRANSFERT HTTP. Le passage par l'état REPOS est obligatoire.
+
+#### Gestion des événements et des transitions
+
+La fonction Python `bouton(commande)` constitue le point d'entrée des événements issus des boutons du Modulino.
+
+Elle reçoit l'une des trois commandes transmises par le MCU (`START`, `STOP` ou `HTTP`), examine l'état courant de l'application et applique les règles de transition.
+
+Les fonctions `demarrer()`, `arreter()`, `demarrer_serveur()` et `arreter_serveur()` réalisent les opérations associées aux transitions.
+
+Le verrou `_lock_commandes` assure la sérialisation du traitement des commandes, afin que deux transitions ne soient pas exécutées simultanément.
+
+#### Comparaison avec une machine à états classique en C++
+
+| Notion | Implémentation classique en C++ | Implémentation dans Car_Traces |
+|---|---|---|
+| Définition des états | Énumération `enum` | Combinaisons de variables |
+| État courant | Variable dédiée | `_enreg["actif"]` et `serveur` |
+| Événement | Appui sur un bouton | Commande reçue par RPC |
+| Traitement | Structure `switch/case` | Structures `if/elif/else` |
+| Transition | Modification de la variable d'état | Modification des variables applicatives |
+| Condition de transition | Condition logique | État courant et, pour START depuis REPOS, disponibilité d'un fix GPS récent |
+
+L'absence d'une énumération et d'une variable d'état dédiée ne remet donc pas en cause le principe de la machine à états. Il s'agit d'un choix d'implémentation, indépendant du langage utilisé.
+
+#### Particularité du fix GPS
+
+La disponibilité d'un fix GPS récent constitue une information qui évolue indépendamment des trois modes de fonctionnement.
+
+Elle intervient comme **condition de transition** de l'état REPOS vers l'état ENREGISTREMENT.
+
+La perte du fix GPS pendant un enregistrement ne provoque pas de retour à l'état REPOS : l'enregistrement reste actif, mais aucun nouveau point n'est ajouté en l'absence de nouvelles données GPS répondant aux contrôles du programme.
+
+#### Distinction entre machine à états et masque binaire
+
+Le masque binaire renvoyé au MCU ne pilote pas la machine à états. Il représente les informations d'état calculées par le MPU afin de commander les trois LED du Modulino.
+
+Il convient donc de distinguer :
+
+- la **gestion des états et des transitions**, qui relève de la logique métier ;
+- la **représentation des informations d'état**, qui permet leur transmission au MCU.
+
+Le MCU ne reproduit pas la machine à états applicative. Il transmet les événements au MPU et affiche les informations d'état que celui-ci lui renvoie.
+
 ### Pourquoi synchroniser les LED toutes les deux secondes ?
 
 Après un appui, le MPU retourne immédiatement l'état des LED. Cependant, **la présence d'un fix GPS récent peut changer sans aucun appui**, par exemple à l'entrée ou à la sortie d'un tunnel. Une synchronisation périodique permet donc de mettre à jour la LED B et de rétablir la cohérence après un éventuel échec de communication.
