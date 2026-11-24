@@ -184,7 +184,7 @@ http://IP_UNO_Q:8000/interpret
 
 Sous Windows, on peut employer explicitement `curl.exe` à la place de `curl`.
 
-**`localhost` ne convient pas depuis un autre ordinateur** : il désigne la machine qui exécute la commande. `http://localhost:8000/etat` ne peut être utilisé que depuis le système hôte Linux de l’UNO Q (si le port y est publié). Pour récupérer les traces depuis le Terra, un Mac ou un autre appareil, utiliser `IP_UNO_Q`.
+**`localhost` ne convient pas depuis un autre ordinateur** : il désigne la machine qui exécute la commande. `http://localhost:8000/etat` ne peut être utilisé que depuis le système hôte Linux de l’UNO Q (si le port y est publié). Pour récupérer les traces depuis un Mac ou un autre appareil, utiliser `IP_UNO_Q`.
 
 La route `/` et la route `/interpret` sélectionnent le **dernier fichier terminé**, à l'exclusion du fichier en cours d'enregistrement. La route `/gpx/NOM.gpx`, quant à elle, ne comporte pas cette exclusion explicite dans le code ; en utilisation normale, le serveur HTTP et l'enregistrement sont mutuellement exclusifs.
 
