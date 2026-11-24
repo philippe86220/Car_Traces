@@ -152,7 +152,7 @@ Remplacer `ADRESSE_UNO_Q` par l'adresse réseau réellement accessible de l'UNO 
 
 ### Télécharger le dernier GPX depuis un autre ordinateur
 
-Depuis un terminal sur un ordinateur connecté au même réseau que l’UNO Q (par exemple le Terra), utiliser **l’adresse IP de l’UNO Q** :
+Depuis un terminal sur un ordinateur connecté au même réseau que l’UNO Q, utiliser **l’adresse IP de l’UNO Q** :
 
 ```bash
 curl -o trace.gpx http://IP_UNO_Q:8000/
