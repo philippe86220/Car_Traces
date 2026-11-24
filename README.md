@@ -356,7 +356,7 @@ Une fois l'application installée et définie comme application par défaut, l'U
 
 ## 12. Intérêt pédagogique
 
-Car_Traces réunit plusieurs notions : UART/NMEA, TinyGPSPlus, I²C et périphériques Modulino, détection de fronts d'appui, échanges interprocesseurs avec Bridge, séparation entre acquisition matérielle et logique métier, synchronisation d'état, masques binaires, concurrence et verrous Python, serveur HTTP, XML/GPX, fuseaux horaires, rotation et récupération de fichiers.
+Car_Traces réunit plusieurs notions : UART/NMEA, TinyGPSPlus, I²C et périphériques Modulino, détection de fronts d'appui, échanges interprocesseurs avec Bridge, séparation entre acquisition matérielle et logique métier, machine à états finis à représentation implicite, conditions de transition, synchronisation d'état, masques binaires, concurrence et verrous Python, serveur HTTP, XML/GPX, fuseaux horaires, rotation et récupération de fichiers.
 
 La leçon centrale est la **répartition explicite des responsabilités** : le MCU assure l'interface matérielle, tandis que le MPU reste la source de vérité et prend les décisions applicatives.
 
