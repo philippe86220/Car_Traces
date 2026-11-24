@@ -272,8 +272,6 @@ La leçon centrale est la **répartition explicite des responsabilités** : le M
 
 **Simulateur pédagogique des masques binaires :** réalisé avec l’assistance de ChatGPT (OpenAI).
 
-Remerciements à **ptillich** pour son aide concernant la [publication du port HTTP dans Arduino App Lab](https://forum.arduino.cc/t/arduino-app-lab-exposing-a-json-api-directly-from-main-py-without-a-custom-brick/1466096/11).
-
 ---
 
 *Ce README français est une base de travail. Après validation en conditions réelles, il pourra être finalisé, traduit en anglais et accompagné d'une présentation sur le forum Arduino.*
