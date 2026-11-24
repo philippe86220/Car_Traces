@@ -95,7 +95,7 @@ Le MPU encode les trois LED dans un seul entier :
 
 Par exemple, `3 = 1 + 2` signifie « enregistrement actif et fix récent » ; `6 = 2 + 4` signifie « fix récent et serveur HTTP actif ». Le MCU décode ces informations avec `etat & 1`, `etat & 2` et `etat & 4`.
 
-Les états où l'enregistrement et HTTP sont simultanément actifs ne sont pas prévus par la logique métier. **Simulateur interactif :** ([🎮 Simulateur interactif des masques binaires](https://philippe86220.github.io/Car_Traces/simulateur_bits.html)). Le fichier HTML fonctionne localement dans un navigateur, sans connexion à l’UNO Q.
+Les états où l'enregistrement et HTTP sont simultanément actifs ne sont pas prévus par la logique métier. **Simulateur interactif :** [🎮 Simulateur interactif des masques binaires](https://philippe86220.github.io/Car_Traces/simulateur_bits.html). Le fichier HTML fonctionne localement dans un navigateur, sans connexion à l’UNO Q.
 ## 5. Acquisition GPS et génération des GPX
 
 Le MCU lit les octets reçus sur `Serial1` et les transmet au décodeur `TinyGPSPlus`. L'envoi au MPU intervient lorsque la position a été mise à jour et que la position, la date, l'heure, l'altitude, le nombre de satellites et le HDOP sont signalés comme valides.
