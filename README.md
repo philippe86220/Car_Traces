@@ -400,8 +400,6 @@ Au lancement de `main.py`, `reparer_gpx()` examine les fichiers `.gpx` :
 3. Si elle en trouve une, elle tronque le fichier juste après cette balise et ajoute les balises finales `</trkseg>`, `</trk>` et `</gpx>`.
 4. Si aucun trackpoint complet n'est trouvé, elle signale le cas dans les journaux et laisse le fichier tel quel.
 
-Cette réparation a été testée après une **troncature manuelle** d'un GPX. Elle doit encore être validée lors d'une coupure d'alimentation réelle.
-
 ### Limites de la réparation
 
 La fonction actuelle ne valide **pas** tous les points du document et ne protège pas contre toutes les formes de corruption. Elle modifie directement le fichier concerné et ne crée pas de copie de sauvegarde préalable. Les données non encore écrites durablement sur le stockage au moment d'une coupure ne peuvent pas être garanties récupérables.
