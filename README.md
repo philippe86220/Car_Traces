@@ -404,7 +404,7 @@ Au lancement de `main.py`, `reparer_gpx()` examine les fichiers `.gpx` :
 
 La fonction actuelle ne valide **pas** tous les points du document et ne protège pas contre toutes les formes de corruption. Elle modifie directement le fichier concerné et ne crée pas de copie de sauvegarde préalable. Les données non encore écrites durablement sur le stockage au moment d'une coupure ne peuvent pas être garanties récupérables.
 
-La documentation doit donc parler de **récupération des fichiers non fermés**, et non de garantie d'intégrité absolue.
+Le mécanisme de réparation vise donc à récupérer les fichiers GPX non fermés à la suite d'une interruption brutale de l'application, sans pour autant garantir l'intégrité de l'ensemble des données enregistrées.
 
 ## 9. Configuration App Lab : `app.yaml`
 
