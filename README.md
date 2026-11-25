@@ -230,12 +230,12 @@ Par exemple, `3 = 1 + 2` signifie « enregistrement actif et fix récent » ; `6
 
 Les états où l'enregistrement et HTTP sont simultanément actifs ne sont pas prévus par la logique métier. **Simulateur interactif :** [🎮 Simulateur interactif des masques binaires](https://philippe86220.github.io/Car_Traces/simulateur_bits.html). Le fichier HTML fonctionne localement dans un navigateur.
 
-### Pour approfondir les échanges entre le MCU et le MPU
+### Pour approfondir la gestion des boutons et des LED du Modulino
 
-Un document complémentaire détaille les mécanismes de communication entre les deux processeurs, les appels RPC, les valeurs de retour, les masques binaires, la synchronisation des LED et la gestion des verrous.
+Un document complémentaire détaille les échanges entre le MCU et le MPU dans le cadre de la gestion du Modulino Buttons : transmission des commandes, appels RPC, valeurs de retour, construction et décodage des masques binaires, synchronisation des LED et gestion des verrous.
 
-- [Comprendre les échanges entre le MCU et le MPU](docs/MCU_MPU_Communication.md)
-
+- [Comprendre les échanges MCU ↔ MPU liés au Modulino Buttons](docs/MCU_MPU_Communication.md)
+  
 ## 5. Acquisition GPS et génération des GPX
 
 Le MCU lit les octets reçus sur `Serial1` et les transmet au décodeur `TinyGPSPlus`. L'envoi au MPU intervient lorsque la position a été mise à jour et que la position, la date, l'heure, l'altitude, le nombre de satellites et le HDOP sont signalés comme valides.
