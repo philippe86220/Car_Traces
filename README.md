@@ -220,33 +220,112 @@ Les GPX sont stockés dans le dossier `data/gpx` de l'application, créé automa
 
 Le serveur Python `ThreadingHTTPServer` écoute sur le **port 8000** et est **désactivé par défaut**. Le bouton C l'active ou le désactive. Le serveur ne peut pas être activé pendant un enregistrement.
 
-Remplacer `ADRESSE_UNO_Q` par l'adresse réseau réellement accessible de l'UNO Q :
+Une fois le serveur activé, les fichiers GPX et les informations relatives à l'état de l'application sont accessibles depuis un ordinateur connecté au même réseau local que l'UNO Q.
+
+Deux méthodes d'accès sont proposées :
+
+- depuis un **navigateur web** (Firefox, Safari, Chrome, etc.) ;
+- depuis un **terminal**, à l'aide de la commande `curl`.
+
+Ces deux méthodes utilisent les mêmes routes HTTP.
+
+### Routes HTTP disponibles
+
+Dans les exemples suivants, remplacer `IP_UNO_Q` par l'adresse IP de l'UNO Q.
 
 | URL | Fonction |
 |---|---|
-| `http://ADRESSE_UNO_Q:8000/` | Télécharge le dernier GPX terminé |
-| `http://ADRESSE_UNO_Q:8000/interpret` | Sert ce GPX sans forcer le téléchargement |
-| `http://ADRESSE_UNO_Q:8000/liste` | Renvoie la liste des fichiers GPX en JSON |
-| `http://ADRESSE_UNO_Q:8000/gpx/NOM.gpx` | Télécharge le fichier désigné |
-| `http://ADRESSE_UNO_Q:8000/etat` | Renvoie l'état de l'application et les dernières données GPS en JSON |
+| `http://IP_UNO_Q:8000/` | Télécharge le dernier GPX terminé |
+| `http://IP_UNO_Q:8000/interpret` | Sert ce GPX sans imposer son téléchargement |
+| `http://IP_UNO_Q:8000/liste` | Renvoie la liste des fichiers GPX en JSON |
+| `http://IP_UNO_Q:8000/gpx/NOM.gpx` | Télécharge le fichier désigné |
+| `http://IP_UNO_Q:8000/etat` | Renvoie l'état de l'application et les dernières données GPS en JSON |
 
-### Télécharger le dernier GPX depuis un autre ordinateur
+### 7.1. Utilisation depuis un navigateur web
 
-Depuis un terminal sur un ordinateur connecté au même réseau que l’UNO Q, utiliser **l’adresse IP de l’UNO Q** :
+Cette méthode ne nécessite aucune commande dans un terminal. Il suffit de saisir l'URL souhaitée dans la barre d'adresse du navigateur.
+
+#### Télécharger le dernier trajet
+
+```text
+http://IP_UNO_Q:8000/
+```
+
+Le navigateur reçoit le dernier fichier GPX terminé avec une instruction de téléchargement. Le fichier conserve son nom d'origine, sous réserve du comportement et des paramètres du navigateur.
+
+#### Consulter le contenu du dernier fichier GPX
+
+```text
+http://IP_UNO_Q:8000/interpret
+```
+
+Le serveur transmet le contenu XML du fichier GPX sans imposer son téléchargement. Le navigateur peut alors afficher son contenu ou le traiter selon sa configuration.
+
+Cette route ne fournit pas une représentation cartographique du trajet.
+
+#### Consulter la liste des fichiers disponibles
+
+```text
+http://IP_UNO_Q:8000/liste
+```
+
+Le navigateur affiche la liste des fichiers GPX disponibles au format JSON.
+
+#### Télécharger un trajet précis
+
+Après avoir repéré le nom du fichier souhaité dans la liste précédente, saisir par exemple :
+
+```text
+http://IP_UNO_Q:8000/gpx/track_20261123_103000.gpx
+```
+
+Le nom utilisé dans cet exemple est fictif : il doit être remplacé par un nom réellement présent dans la liste des fichiers disponibles.
+
+#### Consulter l'état de l'application
+
+```text
+http://IP_UNO_Q:8000/etat
+```
+
+Cette route permet de consulter l'état de l'application et les dernières données GPS mémorisées par le MPU, au format JSON.
+
+### 7.2. Utilisation depuis un terminal avec `curl`
+
+L'utilisation de `curl` permet notamment de choisir le nom local du fichier téléchargé et d'automatiser la récupération des traces à l'aide de scripts.
+
+Les commandes suivantes doivent être exécutées dans un terminal sur un ordinateur connecté au même réseau que l'UNO Q.
+
+#### Télécharger le dernier trajet sous un nom choisi
 
 ```bash
 curl -o trace.gpx http://IP_UNO_Q:8000/
 ```
 
-L’option **`-o` (lettre o minuscule)** permet de **choisir le nom local** du fichier : ici `trace.gpx`. Relancer cette commande remplace le fichier local existant du même nom, ce qui facilite son ouverture dans un logiciel de visualisation. Attention : `-o` peut écraser un fichier local ; ne pas l’utiliser pour conserver un historique sous des noms différents.
+L'option **`-o` (lettre o minuscule)** permet de choisir le nom local du fichier : ici `trace.gpx`.
 
-La route `/` renvoie toujours **le dernier GPX terminé**. Si plusieurs enregistrements ont été réalisés au cours d’un trajet, cette commande n’en récupère qu’un seul.
+Relancer cette commande remplace le fichier local existant du même nom, ce qui facilite son ouverture dans un logiciel de visualisation.
 
-### Consulter la liste et télécharger une trace précise
+**Attention :** `-o` peut écraser un fichier local. Ne pas utiliser systématiquement le même nom si l'on souhaite conserver un historique des trajets.
+
+La route `/` renvoie uniquement le dernier GPX terminé. Si plusieurs enregistrements ont été réalisés au cours d'un trajet, cette commande n'en récupère qu'un seul.
+
+#### Télécharger le dernier trajet sous son nom d'origine
+
+```bash
+curl -OJ http://IP_UNO_Q:8000/
+```
+
+L'association des options `-O` et `-J` permet d'utiliser le nom de fichier communiqué par le serveur dans l'en-tête HTTP `Content-Disposition`.
+
+#### Consulter la liste des fichiers disponibles
 
 ```bash
 curl http://IP_UNO_Q:8000/liste
 ```
+
+La liste des fichiers GPX est affichée dans le terminal au format JSON.
+
+#### Télécharger un trajet précis sous son nom d'origine
 
 Après avoir repéré le nom souhaité dans la liste JSON :
 
@@ -254,19 +333,61 @@ Après avoir repéré le nom souhaité dans la liste JSON :
 curl -O http://IP_UNO_Q:8000/gpx/track_20261123_103000.gpx
 ```
 
-**Attention : `-O` est un O MAJUSCULE, et non un `-o` minuscule !** L’option `-O` enregistre le fichier sous son **nom distant** (ici `track_20261123_103000.gpx`). Avec `-o`, il faudrait préciser soi-même un nom local après l’option. Le nom d’exemple ci-dessus est fictif : utiliser un nom réellement renvoyé par `/liste`.
+**Attention : `-O` est un O MAJUSCULE, et non un `-o` minuscule !**
 
-Pour consulter le dernier fichier sans imposer le téléchargement dans le navigateur :
+L'option `-O` utilise le nom du fichier présent dans l'URL comme nom local (ici `track_20261123_103000.gpx`).
 
-```text
-http://IP_UNO_Q:8000/interpret
+Avec `-o`, il faudrait préciser soi-même un nom local après l'option.
+
+#### Consulter le contenu XML du dernier fichier GPX
+
+```bash
+curl http://IP_UNO_Q:8000/interpret
 ```
+
+Le contenu XML du fichier GPX est affiché directement dans le terminal.
+
+#### Consulter l'état de l'application
+
+```bash
+curl http://IP_UNO_Q:8000/etat
+```
+
+Les informations relatives à l'état de l'application et les dernières données GPS sont affichées dans le terminal au format JSON.
+
+#### Particularité sous Windows
 
 Sous Windows, on peut employer explicitement `curl.exe` à la place de `curl`.
 
-**`localhost` ne convient pas depuis un autre ordinateur** : il désigne la machine qui exécute la commande. `http://localhost:8000/etat` ne peut être utilisé que depuis le système hôte Linux de l’UNO Q (si le port y est publié). Pour récupérer les traces depuis un Mac ou un autre appareil, utiliser `IP_UNO_Q`.
+Par exemple :
 
-La route `/` et la route `/interpret` sélectionnent le **dernier fichier terminé**, à l'exclusion du fichier en cours d'enregistrement. La route `/gpx/NOM.gpx`, quant à elle, ne comporte pas cette exclusion explicite dans le code ; en utilisation normale, le serveur HTTP et l'enregistrement sont mutuellement exclusifs.
+```bash
+curl.exe -o trace.gpx http://IP_UNO_Q:8000/
+```
+
+### 7.3. Comparaison des deux méthodes
+
+| Opération | Navigateur web | Terminal avec `curl` |
+|---|---|---|
+| Télécharger le dernier GPX | Oui | Oui |
+| Télécharger un GPX précis | Oui | Oui |
+| Consulter la liste des GPX | Oui | Oui |
+| Consulter le contenu XML | Selon le comportement du navigateur | Oui |
+| Consulter l'état de l'application | Oui | Oui |
+| Choisir le nom local du fichier | Selon les paramètres du navigateur | Oui, avec `-o` |
+| Automatiser les téléchargements par script | Non prévu dans cette procédure | Oui |
+
+Le navigateur constitue la méthode la plus directe pour une utilisation ponctuelle. Le terminal offre davantage de souplesse, notamment pour choisir le nom des fichiers et automatiser leur récupération.
+
+### 7.4. Particularités et précautions
+
+**Adresse réseau :** `localhost` ne convient pas depuis un autre ordinateur, qu'il s'agisse d'un accès depuis un navigateur ou depuis un terminal. Cette adresse désigne toujours la machine sur laquelle le client HTTP est exécuté.
+
+Depuis le système hôte Linux de l'UNO Q, il est possible d'utiliser `http://localhost:8000` lorsque le port est publié, comme expliqué au chapitre 9.
+
+Depuis un autre appareil, utiliser l'adresse IP de l'UNO Q.
+
+**Sélection des fichiers :** les routes `/` et `/interpret` sélectionnent le dernier fichier terminé, à l'exclusion du fichier en cours d'enregistrement. La route `/gpx/NOM.gpx`, quant à elle, ne comporte pas cette exclusion explicite dans le code ; en utilisation normale, le serveur HTTP et l'enregistrement sont mutuellement exclusifs.
 
 **Sécurité :** le serveur écoute sur `0.0.0.0` et ne comporte pas d'authentification. Il est destiné à un réseau de confiance ; ne pas exposer directement son port sur Internet.
 
