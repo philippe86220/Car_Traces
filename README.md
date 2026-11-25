@@ -13,15 +13,68 @@ Ce projet illustre la collaboration entre les deux environnements de l'UNO Q :
 
 Le principe architectural est volontairement simple : **le MCU détecte les événements et transmet les données ; le MPU prend les décisions applicatives ; le MCU reflète ensuite l'état décidé par le MPU.**
 
-## 2. Matériel et environnement
+## 2. Matériel, raccordements et alimentation embarquée
+
+### Matériel nécessaire
 
 - Arduino **UNO Q** ;
 - récepteur GPS fournissant des trames NMEA sur liaison série UART ;
 - **Modulino Buttons** (trois boutons et trois LED) ;
-- alimentation adaptée à l'UNO Q, notamment pour l'usage embarqué ;
+- câble USB-C et adaptateur USB-A vers USB-C selon la connectique du véhicule ;
+- boîtier destiné à recevoir et à protéger les différents composants ;
 - Arduino App Lab et les bibliothèques utilisées dans le sketch : `TinyGPSPlus`, `Arduino_RouterBridge`, `Arduino_Modulino`.
 
-Le sketch utilise `Serial1.begin(9600)` pour le GPS et le bus utilisé par `Modulino.begin()` pour les boutons. **Avant publication, ajouter une photographie et un schéma de câblage vérifié** (alimentation, masse, TX/RX et connexion du Modulino). Ne pas déduire le brochage du seul nom `Serial1`.
+### Raccordement du récepteur GPS
+
+| Arduino UNO Q | Récepteur GPS |
+|---|---|
+| D0 (RX) | TX |
+| D1 (TX) | RX |
+| GND | GND |
+| 3.3V | VCC |
+
+Le sketch utilise `Serial1.begin(9600)` pour communiquer avec le récepteur GPS.
+
+Le module GPS utilisé doit être compatible avec une alimentation et des niveaux logiques de 3,3 V.
+
+### Raccordement du Modulino Buttons
+
+Le Modulino Buttons est directement raccordé au connecteur Qwiic de l'Arduino UNO Q à l'aide d'un câble compatible.
+
+La communication avec le MCU s'effectue par le bus I²C, initialisé par `Modulino.begin()`.
+
+### Alimentation dans le véhicule
+
+Car_Traces est conçu pour fonctionner de manière autonome à bord d'un véhicule, sans batterie supplémentaire ni connexion réseau pendant l'enregistrement des trajets.
+
+L'alimentation de l'Arduino UNO Q s'effectue par son connecteur USB-C, à partir d'une prise USB du véhicule.
+
+Deux configurations sont possibles :
+
+| Connectique du véhicule | Raccordement |
+|---|---|
+| USB-A | Câble USB-C avec adaptateur USB-A vers USB-C |
+| USB-C | Câble USB-C vers USB-C |
+
+Cette solution permet d'utiliser le même enregistreur dans différents véhicules, indépendamment de leur connectique USB.
+
+Il convient toutefois de vérifier que la prise USB du véhicule fournit une alimentation suffisante pour l'ensemble du montage. Si nécessaire, un adaptateur USB adapté à la prise accessoires 12 V du véhicule pourra être utilisé.
+
+Car_Traces étant définie comme application par défaut (`DEFAULT`) dans Arduino App Lab, elle démarre automatiquement dès la mise sous tension de l'UNO Q.
+
+L'utilisateur peut alors démarrer un enregistrement à l'aide du bouton A, dès qu'un fix GPS récent est disponible.
+
+### Précautions d'utilisation dans le véhicule
+
+Il est recommandé de terminer l'enregistrement à l'aide du bouton B avant de couper l'alimentation de l'UNO Q.
+
+En cas d'interruption brutale de l'alimentation, le mécanisme de réparation des fichiers GPX intervient au prochain démarrage de l'application, dans les conditions et avec les limites décrites au chapitre 8.
+
+Le boîtier doit être installé de manière à permettre une réception GPS satisfaisante, sans gêner la conduite ni compromettre la sécurité des occupants.
+
+### Photographies de la réalisation
+
+*Photographies du raccordement des composants, du montage dans son boîtier et de son installation dans le véhicule à ajouter après réalisation matérielle.*
 
 ## 3. Architecture MCU / MPU
 
