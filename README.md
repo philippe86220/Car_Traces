@@ -351,7 +351,7 @@ afficherLeds(etat);
 
 Le ET binaire avec `3` (`011`) conserve les bits A et B et efface le bit C. Le OU binaire avec `4` (`100`) force le bit C à 1 pendant les phases paires. `etat |= 4` équivaut à `etat = etat | 4`.
 
-| Masque reçu | Après `& 3` | Phase paire (`| 4`) | Phase impaire |
+| Masque reçu | Après `& 3` | Phase paire (`\| 4`) | Phase impaire |
 |---|---|---|---|
 | `000` (0) | `000` | `100` (4) | `000` (0) |
 | `010` (2) | `010` | `110` (6) | `010` (2) |
