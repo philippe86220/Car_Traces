@@ -72,6 +72,16 @@ En cas d'interruption brutale de l'alimentation, le mécanisme de réparation de
 
 Le boîtier doit être installé de manière à permettre une réception GPS satisfaisante, sans gêner la conduite ni compromettre la sécurité des occupants.
 
+**Importance de la qualité de l'alimentation et du câble USB**
+
+Les essais réalisés ont mis en évidence l'importance de la qualité de la chaîne d'alimentation de l'Arduino UNO Q, notamment lors de son démarrage.
+
+Il est fortement recommandé d'utiliser un câble USB d'excellente qualité, suffisamment dimensionné pour supporter le courant nécessaire, et de privilégier un câble court afin de limiter les chutes de tension.
+
+En cas d'utilisation d'un adaptateur USB-A vers USB-C, celui-ci doit également être de bonne qualité.
+
+Une alimentation insuffisante ou instable peut entraîner des redémarrages successifs de l'UNO Q et empêcher l'initialisation correcte de Car_Traces.
+
 ### Photographies de la réalisation
 
 *Photographies du raccordement des composants, du montage dans son boîtier et de son installation dans le véhicule à ajouter après réalisation matérielle.*
