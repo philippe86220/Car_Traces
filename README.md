@@ -1,6 +1,6 @@
 # Car_Traces — Enregistreur de trajets GPS avec Arduino UNO Q
 
-> **Documentation française — version de travail (23 novembre 2026).** Le programme a fait l'objet d'essais fonctionnels, dont un test concluant de rotation à 20 fichiers GPX. La validation sur plusieurs trajets réels et le test de coupure brutale d'alimentation restent à compléter avant publication définitive.
+> **Documentation française — 26 novembre 2026.** Le programme a fait l’objet d’essais fonctionnels et en conditions réelles, notamment la rotation à 20 fichiers GPX, la récupération après coupure d’alimentation et la reprise après interruption des données GPS.
 
 ## 1. Présentation
 
@@ -11,7 +11,7 @@ Ce projet illustre la collaboration entre les deux environnements de l'UNO Q :
 - le **MCU**, programmé en C++, lit le GPS et les boutons et pilote les LED ;
 - le **MPU**, sous Linux et programmé en Python avec Arduino App Lab, détient l'état de référence, applique la logique métier, écrit les GPX et gère le serveur HTTP.
 
-Le principe architectural est volontairement simple : **le MCU détecte les événements et transmet les données ; le MPU prend les décisions applicatives ; le MCU reflète ensuite l'état décidé par le MPU.**
+Le principe architectural est volontairement simple : **le MCU détecte les événements et transmet les données ; le MPU prend les décisions applicatives ; le MCU affiche les informations d’état du MPU et assure localement la signalisation de fin d’initialisation.**
 
 ## 2. Matériel, raccordements et alimentation embarquée
 
@@ -62,7 +62,7 @@ Il convient toutefois de vérifier que la prise USB du véhicule fournit une ali
 
 Car_Traces étant définie comme application par défaut (`DEFAULT`) dans Arduino App Lab, elle démarre automatiquement dès la mise sous tension de l'UNO Q.
 
-L'utilisateur peut alors démarrer un enregistrement à l'aide du bouton A, dès qu'un fix GPS récent est disponible.
+Trois clignotements de la LED C signalent le premier échange RPC réussi avec `etat_leds`. L’utilisateur peut ensuite activer le serveur HTTP même sans fix GPS, ou démarrer un enregistrement à l’aide du bouton A dès que la LED B indique un fix récent.
 
 ### Précautions d'utilisation dans le véhicule
 
@@ -98,6 +98,7 @@ Une alimentation insuffisante ou instable peut entraîner des redémarrages succ
  | - Détecte les fronts d'appui sur A, B et C        |
  | - Envoie les données et commandes au MPU          |
  | - Affiche sur les LED l'état reçu du MPU          |
+ | - Signale localement la fin d'initialisation      |
  +-----------------------+---------------------------+
                          | Arduino Bridge
                          v
@@ -116,8 +117,8 @@ Une alimentation insuffisante ou instable peut entraîner des redémarrages succ
 | Fonction Python exposée | Appelée par le MCU | Rôle |
 |---|---|---|
 | `update_gps(...)` | À la réception d'une position mise à jour et valide selon les contrôles du sketch | Met à jour les données GPS et écrit éventuellement un point |
-| `bouton("START"/"STOP"/"HTTP")` | Sur un **front d'appui** | Demande une transition ; retourne l'état des LED |
-| `etat_leds()` | Environ toutes les deux secondes | Retourne l'état applicatif actuel sous forme de masque binaire |
+| `bouton("START"/"STOP"/"HTTP")` | Sur un **front d'appui** | Demande une transition ; retourne le masque d’état métier |
+| `etat_leds()` | Environ toutes les deux secondes | Retourne le masque d’état métier ; le premier retour réussi déclenche la signalisation locale |
 
 Ces fonctions sont enregistrées avec `Bridge.provide(...)`, puis l'application Python lance `App.run()`.
 
@@ -127,9 +128,15 @@ Ces fonctions sont enregistrées avec `Bridge.provide(...)`, puis l'application 
 |---|---|---|---|
 | **A** | `START` | Démarrer un enregistrement si le serveur HTTP est arrêté et si un fix GPS récent est disponible | A : enregistrement actif |
 | **B** | `STOP` | Terminer l'enregistrement en écrivant les balises de fermeture GPX | B : **fix GPS récent**, et non état STOP |
-| **C** | `HTTP` | Activer/désactiver le serveur HTTP si aucun enregistrement n'est actif | C : serveur HTTP actif |
+| **C** | `HTTP` | Activer/désactiver le serveur HTTP si aucun enregistrement n'est actif | C : serveur HTTP actif en fonctionnement normal ; trois clignotements à l’initialisation |
 
-**Attention :** les LED indiquent l'état de l'application et non l'état des boutons. En particulier, la LED B indique la disponibilité d'un fix GPS récent, indépendamment de la commande `STOP` associée au bouton B.
+**Attention :** en fonctionnement normal, les LED indiquent l'état de l'application et non l'état des boutons. En particulier, la LED B indique la disponibilité d'un fix GPS récent, indépendamment de la commande `STOP` associée au bouton B.
+
+### Signalisation de fin d’initialisation
+
+Au démarrage, les trois LED sont éteintes. Le premier retour réussi de l’appel RPC `etat_leds` déclenche trois clignotements de la LED C, indépendamment de la disponibilité du fix GPS. Ce signal confirme que le MCU a pu récupérer l’état du MPU ; il ne signifie pas que le serveur HTTP est déjà actif.
+
+Après cette séquence, la LED C reprend sa fonction normale. Le serveur HTTP peut être activé sans fix GPS, à condition qu’aucun enregistrement ne soit en cours. Les LED A et B restent pilotées à partir des informations d’état mémorisées.
 
 ### Transitions autorisées
 
@@ -142,7 +149,7 @@ Ces fonctions sont enregistrées avec `Bridge.provide(...)`, puis l'application 
 
 La logique métier de Car_Traces peut être représentée par une **machine à états finis** (*Finite State Machine*, FSM).
 
-Contrairement à une implémentation classique utilisant une énumération (`enum`) et une variable représentant l'état courant, Car_Traces utilise une **représentation implicite des états**.
+Contrairement à une implémentation classique utilisant une énumération (`enum`) et une variable représentant l’état courant, la machine métier du MPU utilise une **représentation implicite des états**.
 
 Le mode de fonctionnement de l'application est directement déterminé par deux informations d'état :
 
@@ -190,7 +197,7 @@ Le verrou `_lock_commandes` assure la sérialisation du traitement des commandes
 
 #### Comparaison avec une machine à états classique en C++
 
-| Notion | Implémentation classique en C++ | Implémentation dans Car_Traces |
+| Notion | Implémentation classique en C++ | Implémentation métier côté MPU |
 |---|---|---|
 | Définition des états | Énumération `enum` | Combinaisons de variables |
 | État courant | Variable dédiée | `_enreg["actif"]` et `serveur` |
@@ -218,13 +225,97 @@ Il convient donc de distinguer :
 - la **gestion des états et des transitions**, qui relève de la logique métier ;
 - la **représentation des informations d'état**, qui permet leur transmission au MCU.
 
-Le MCU ne reproduit pas la machine à états applicative. Il transmet les événements au MPU et affiche les informations d'état que celui-ci lui renvoie.
+Le MCU ne reproduit pas la machine à états applicative. Il transmet les événements au MPU et gère l’affichage, avec une machine à états technique indépendante pour la signalisation de démarrage.
+
+### Machine à états technique côté MCU
+
+Cette machine ne décide ni de l’enregistrement ni du serveur HTTP. Elle gère exclusivement la séquence lumineuse de démarrage, à l’aide d’une énumération C++ et d’une variable d’état dédiée :
+
+```cpp
+enum EtatInitialisation {
+  ATTENTE_MPU,
+  CLIGNOTEMENT,
+  TERMINE
+};
+EtatInitialisation initialisation = ATTENTE_MPU;
+```
+
+| État | Rôle |
+|---|---|
+| `ATTENTE_MPU` | Attend le premier résultat réussi de `etat_leds` |
+| `CLIGNOTEMENT` | Pilote temporairement la LED C |
+| `TERMINE` | Rétablit le fonctionnement normal jusqu’à la prochaine réinitialisation du MCU |
+
+```mermaid
+stateDiagram-v2
+    [*] --> ATTENTE_MPU
+    ATTENTE_MPU --> CLIGNOTEMENT : Premier retour RPC etat_leds réussi
+    CLIGNOTEMENT --> TERMINE : Phase supérieure ou égale à 6
+```
+
+#### Déclenchement
+
+Dans `synchroLeds()`, après un retour réussi de `Bridge.call("etat_leds").result(etat)`, le MCU mémorise le masque reçu puis exécute, uniquement si l’état courant est `ATTENTE_MPU` :
+
+```cpp
+if (initialisation == ATTENTE_MPU) {
+  initialisation = CLIGNOTEMENT;
+  debutClignotement = millis();
+  Monitor.println("Car_Traces operationnel");
+}
+```
+
+Le booléen retourné par `result()` indique la réussite de la récupération du résultat RPC, indépendamment de la valeur du masque.
+
+#### Temporisation non bloquante et modulo
+
+La fonction `signalerInitialisation()` est appelée à chaque passage dans `loop()`, après `lireBoutons()` et `synchroLeds()`. Elle retourne immédiatement si l’état n’est pas `CLIGNOTEMENT`.
+
+```cpp
+unsigned long ecoule = millis() - debutClignotement;
+unsigned long phase = ecoule / PERIODE_CLIGNOTEMENT;
+```
+
+`PERIODE_CLIGNOTEMENT` vaut `200UL` (200 ms) et `NB_CLIGNOTEMENTS` vaut 3. La division entière découpe le temps en phases de 200 ms. `phase` est un indice sans unité ; le modulo `phase % 2` distingue les phases paires et impaires.
+
+| Temps écoulé | Phase | Modulo 2 | LED C |
+|---|---:|---:|---|
+| 0–199 ms | 0 | 0 | Allumée |
+| 200–399 ms | 1 | 1 | Éteinte |
+| 400–599 ms | 2 | 0 | Allumée |
+| 600–799 ms | 3 | 1 | Éteinte |
+| 800–999 ms | 4 | 0 | Allumée |
+| 1000–1199 ms | 5 | 1 | Éteinte |
+| À partir de 1200 ms | ≥ 6 | — | État métier mémorisé |
+
+```cpp
+if (phase >= NB_CLIGNOTEMENTS * 2UL) {
+  initialisation = TERMINE;
+  afficherLeds(etatMPU);
+  return;
+}
+```
+
+La durée nominale est de 1 200 ms. Aucun `delay()` n’est utilisé : la boucle continue de traiter le GPS, les boutons et les échanges RPC. Les appels RPC synchrones peuvent toutefois retarder une itération et donc décaler ou faire manquer une phase lumineuse.
+
+Une fois `TERMINE` atteint, la fonction reste appelée mais retourne immédiatement. La séquence ne recommence qu’après réinitialisation du MCU.
+
+#### Deux machines à états complémentaires
+
+| | MPU | MCU |
+|---|---|---|
+| Nature | Métier | Technique |
+| Représentation | Implicite, variables Python | Explicite, `enum` C++ |
+| Rôle | Enregistrement et serveur HTTP | Signalisation de démarrage |
+| Évolution | Commandes et conditions métier | Premier retour RPC réussi puis temps écoulé |
+
+Les deux machines sont indépendantes dans leurs responsabilités : le MPU reste la source de vérité métier.
 
 ### Pourquoi synchroniser les LED toutes les deux secondes ?
 
 Après un appui, le MPU retourne immédiatement l'état des LED. Cependant, **la présence d'un fix GPS récent peut changer sans aucun appui**, par exemple à l'entrée ou à la sortie d'un tunnel. Une synchronisation périodique permet donc de mettre à jour la LED B et de rétablir la cohérence après un éventuel échec de communication.
 
-Cette interrogation n'entraîne pas systématiquement une écriture sur le Modulino : `afficherLeds()` compare l'état reçu à `dernierEtat` et n'appelle `buttons.setLeds(...)` **que lorsque l'état change**.
+Cette interrogation n’entraîne pas systématiquement une écriture sur le Modulino : `afficherLeds()` compare le masque à afficher à `dernierEtat` et n’appelle `buttons.setLeds(...)` **que lorsque ce masque change**. `memoriserEtat()` conserve le dernier masque reçu dans `etatMPU` (ou zéro en cas d’échec RPC) et ne l’affiche directement que hors clignotement.
 
 ### Comprendre le masque binaire
 
@@ -238,7 +329,38 @@ Le MPU encode les trois LED dans un seul entier :
 
 Par exemple, `3 = 1 + 2` signifie « enregistrement actif et fix récent » ; `6 = 2 + 4` signifie « fix récent et serveur HTTP actif ». Le MCU décode ces informations avec `etat & 1`, `etat & 2` et `etat & 4`.
 
-Les états où l'enregistrement et HTTP sont simultanément actifs ne sont pas prévus par la logique métier. **Simulateur interactif :** [🎮 Simulateur interactif des masques binaires](https://philippe86220.github.io/Car_Traces/simulateur_bits.html). Le fichier HTML fonctionne localement dans un navigateur.
+Les états où l'enregistrement et HTTP sont simultanément actifs ne sont pas prévus par la logique métier.
+
+#### Masque métier et masque d’affichage
+
+| Variable | Rôle |
+|---|---|
+| `etatMPU` | Dernier masque reçu du MPU, ou zéro en cas d’échec RPC |
+| `dernierEtat` | Dernier masque appliqué aux LED |
+| `etat` dans `signalerInitialisation()` | Masque local temporaire destiné à l’affichage |
+
+Pendant le clignotement, le MCU construit un masque d’affichage sans modifier `etatMPU` :
+
+```cpp
+int etat = etatMPU & 3;
+if (phase % 2 == 0) {
+  etat |= 4;
+}
+afficherLeds(etat);
+```
+
+Le ET binaire avec `3` (`011`) conserve les bits A et B et efface le bit C. Le OU binaire avec `4` (`100`) force le bit C à 1 pendant les phases paires. `etat |= 4` équivaut à `etat = etat | 4`.
+
+| Masque reçu | Après `& 3` | Phase paire (`| 4`) | Phase impaire |
+|---|---|---|---|
+| `000` (0) | `000` | `100` (4) | `000` (0) |
+| `010` (2) | `010` | `110` (6) | `010` (2) |
+| `011` (3) | `011` | `111` (7) | `011` (3) |
+| `110` (6) | `010` | `110` (6) | `010` (2) |
+
+Les masques `101` et `111`, interdits comme états métier, peuvent donc apparaître temporairement comme masques d’affichage si un enregistrement est actif pendant la séquence. Ils ne signifient pas que le serveur HTTP et l’enregistrement fonctionnent simultanément. En cas d’échec RPC pendant la séquence, `etatMPU` devient zéro, mais C peut continuer à clignoter jusqu’à la fin de celle-ci.
+
+**Simulateur interactif (masques métier du MPU, hors signalisation de démarrage) :** [🎮 Simulateur interactif des masques binaires](https://philippe86220.github.io/Car_Traces/simulateur_bits.html). Le fichier HTML fonctionne localement dans un navigateur.
 
 ### Pour approfondir la gestion des boutons et des LED du Modulino
 
@@ -281,7 +403,7 @@ Les GPX sont stockés dans le dossier `data/gpx` de l'application, créé automa
 
 ## 7. Serveur HTTP et récupération des traces
 
-Le serveur Python `ThreadingHTTPServer` écoute sur le **port 8000** et est **désactivé par défaut**. Le bouton C l'active ou le désactive. Le serveur ne peut pas être activé pendant un enregistrement.
+Le serveur Python `ThreadingHTTPServer` écoute sur le **port 8000** et est **désactivé par défaut**. Le bouton C l'active ou le désactive. Le serveur ne peut pas être activé pendant un enregistrement. Aucun fix GPS n’est nécessaire pour l’activer.
 
 Une fois le serveur activé, les fichiers GPX et les informations relatives à l'état de l'application sont accessibles depuis un ordinateur connecté au même réseau local que l'UNO Q.
 
@@ -512,13 +634,14 @@ Il convient toutefois de distinguer la publication du port par Docker du démarr
 1. Télécharger le dépôt [Car_Traces](https://github.com/philippe86220/Car_Traces) depuis GitHub au format ZIP.
 2. Importer l'application dans Arduino App Lab.
 3. Vérifier la disponibilité des bibliothèques nécessaires au sketch.
-4. Raccorder le GPS et le Modulino Buttons conformément au schéma de câblage.
+4. Raccorder le GPS et le Modulino Buttons conformément aux raccordements décrits au chapitre 2.
 5. Lancer l'application dans Arduino App Lab.
 6. Définir **Car_Traces** comme application par défaut (`DEFAULT`) afin qu'elle démarre automatiquement à chaque mise sous tension de l'UNO Q.
 
 ### Utilisation
 
-- Attendre l'allumage de la LED B, indiquant la disponibilité d'un fix GPS récent.
+- Attendre les trois clignotements de la LED C, signalant le premier retour RPC réussi de `etat_leds`.
+- Pour enregistrer un trajet, attendre l’allumage de la LED B, indiquant la disponibilité d’un fix GPS récent. Cette attente n’est pas nécessaire pour récupérer les traces via HTTP.
 - Appuyer sur le bouton **A** pour démarrer un enregistrement.
 - Appuyer sur le bouton **B** pour terminer l'enregistrement.
 - Appuyer sur le bouton **C** pour activer le serveur HTTP et récupérer les fichiers GPX depuis un autre ordinateur connecté au réseau local.
@@ -528,19 +651,27 @@ Le programme Python crée automatiquement le dossier `data/gpx` et tente, à cha
 
 Une fois l'application installée et définie comme application par défaut, l'UNO Q fonctionne de manière autonome. Aucune connexion réseau n'est nécessaire pendant l'enregistrement des trajets.
 
-## 11. Vérifications réalisées et validation restante
+## 11. Vérifications réalisées et validation en conditions réelles
 
 **Vérifications déjà rapportées :** acquisition GPS et création de traces, lecture dans un outil de visualisation GPX, fonctionnement des commandes et des LED, téléchargement HTTP depuis une autre machine, consultation de `/liste` et récupération d’un GPX précis avec `-O`, réparation d'un fichier volontairement tronqué et rotation à **20 GPX**.
 
 Le démarrage automatique de Car_Traces, définie comme application par défaut (`DEFAULT`) dans Arduino App Lab, a également été validé. L'application redémarre automatiquement lors de la mise sous tension de l'UNO Q, qu'elle ait été laissée active ou arrêtée manuellement avant l'arrêt de la carte.
 
-**Avant publication définitive :** réaliser plusieurs trajets réels, vérifier la reprise après perte de réception (tunnel), contrôler les fichiers téléchargés et tester une coupure d'alimentation dans des conditions sûres. Ne pas réaliser de manipulation électrique pendant la conduite.
+**Essais en conditions réelles du 26 novembre 2026 :**
+
+- Trajet normal : enregistrement et récupération GPX conformes.
+- Coupure brutale de l’alimentation USB : récupération du fichier avec ajout des balises finales après redémarrage.
+- Interruption temporaire des données GPS : absence de nouveaux points pendant l’interruption et reprise automatique à leur retour. Un logiciel de visualisation peut relier les deux positions encadrant l’interruption par une ligne droite, sans que Car_Traces ait créé de points intermédiaires.
+- Signalisation de démarrage : fonctionnement du sketch intégrant le clignotement confirmé par un nouvel essai en conditions réelles.
+- Alimentation : des difficultés de démarrage avec une configuration domestique ont disparu après changement de la chaîne d’alimentation. Le rôle respectif du câble et du bloc n’a pas été isolé.
+
+Ne pas réaliser de manipulation électrique pendant la conduite.
 
 ## 12. Intérêt pédagogique
 
-Car_Traces réunit plusieurs notions : UART/NMEA, TinyGPSPlus, I²C et périphériques Modulino, détection de fronts d'appui, échanges interprocesseurs avec Bridge, séparation entre acquisition matérielle et logique métier, machine à états finis à représentation implicite, conditions de transition, synchronisation d'état, masques binaires, concurrence et verrous Python, serveur HTTP, XML/GPX, fuseaux horaires, rotation et récupération de fichiers.
+Car_Traces réunit plusieurs notions : UART/NMEA, TinyGPSPlus, I²C et périphériques Modulino, détection de fronts d'appui, échanges interprocesseurs avec Bridge, séparation entre acquisition matérielle et logique métier, machines à états finis à représentation implicite (MPU) et explicite (MCU), conditions de transition, synchronisation d’état, distinction entre masque métier et masque d’affichage, opérations binaires, division entière, modulo et temporisation non bloquante avec `millis()`, concurrence et verrous Python, serveur HTTP, XML/GPX, fuseaux horaires, rotation et récupération de fichiers.
 
-La leçon centrale est la **répartition explicite des responsabilités** : le MCU assure l'interface matérielle, tandis que le MPU reste la source de vérité et prend les décisions applicatives.
+La leçon centrale est la **répartition explicite des responsabilités** : le MCU assure l'interface matérielle, et la signalisation technique locale, tandis que le MPU reste la source de vérité et prend les décisions métier.
 
 ## 13. Crédits
 
@@ -552,4 +683,4 @@ La leçon centrale est la **répartition explicite des responsabilités** : le M
 
 ---
 
-*Ce README français est une base de travail. Après validation en conditions réelles, il pourra être finalisé, traduit en anglais et accompagné d'une présentation sur le forum Arduino.*
+*Documentation française destinée à être relue avant traduction anglaise et présentation sur le forum Arduino.*
