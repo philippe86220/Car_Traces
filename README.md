@@ -84,6 +84,12 @@ En cas d'utilisation d'un adaptateur USB-A vers USB-C, celui-ci doit également 
 
 Une alimentation insuffisante ou instable peut entraîner des redémarrages successifs de l'UNO Q et empêcher l'initialisation correcte de Car_Traces.
 
+**Protection mécanique du connecteur USB-C**
+
+Afin de limiter l'usure du connecteur USB-C de l'Arduino UNO Q, il est recommandé de laisser un câble USB de bonne qualité connecté en permanence à la carte et d'effectuer les branchements et débranchements du côté de l'alimentation.
+
+Une fixation mécanique du câble sur le boîtier permet également de limiter les contraintes exercées sur le connecteur, notamment lors des déplacements du véhicule.
+
 ### Photographies de la réalisation
 
 Les photographies suivantes illustrent les différentes étapes de la réalisation matérielle de Car_Traces, depuis la préparation du boîtier jusqu'à son utilisation à bord d'un véhicule.
