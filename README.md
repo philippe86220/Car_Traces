@@ -358,7 +358,11 @@ Le ET binaire avec `3` (`011`) conserve les bits A et B et efface le bit C. Le O
 | `011` (3) | `011` | `111` (7) | `011` (3) |
 | `110` (6) | `010` | `110` (6) | `010` (2) |
 
-Les masques `101` et `111`, interdits comme états métier, peuvent donc apparaître temporairement comme masques d’affichage si un enregistrement est actif pendant la séquence. Ils ne signifient pas que le serveur HTTP et l’enregistrement fonctionnent simultanément. En cas d’échec RPC pendant la séquence, `etatMPU` devient zéro, mais C peut continuer à clignoter jusqu’à la fin de celle-ci.
+Lors d'un démarrage normal, en l'absence d'action de l'utilisateur sur les boutons, aucun enregistrement n'est actif et le serveur HTTP est arrêté. Les masques d'affichage possibles pendant la séquence d'initialisation sont donc `000`, `010`, `100` et `110`.
+
+Toutefois, la lecture des boutons n'étant pas suspendue pendant cette séquence, une commande `START` acceptée pourrait exceptionnellement conduire à l'affichage temporaire des masques `101` ou `111`. Ces masques ne traduisent pas une activation simultanée de l'enregistrement et du serveur HTTP.
+
+En cas d'échec RPC pendant la séquence, `etatMPU` devient zéro, mais la LED C peut continuer à clignoter jusqu'à la fin de celle-ci.
 
 **Simulateur interactif (masques métier du MPU, hors signalisation de démarrage) :** [🎮 Simulateur interactif des masques binaires](https://philippe86220.github.io/Car_Traces/simulateur_bits.html). Le fichier HTML fonctionne localement dans un navigateur.
 
