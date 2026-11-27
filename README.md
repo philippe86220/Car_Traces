@@ -408,7 +408,7 @@ En cas d'échec RPC pendant la séquence, `etatMPU` devient zéro, mais la LED C
 
 Un document complémentaire détaille les échanges entre le MCU et le MPU dans le cadre de la gestion du Modulino Buttons : transmission des commandes, appels RPC, valeurs de retour, construction et décodage des masques binaires, synchronisation des LED et gestion des verrous.
 
-- [Comprendre les échanges MCU ↔ MPU liés au Modulino Buttons](docs/MCU_MPU_Communication.md)
+- [Comprendre les échanges MCU ↔ MPU liés au Modulino Buttons](docs/MCU_MPU_Communication_FR.md)
   
 ## 5. Acquisition GPS et génération des GPX
 
