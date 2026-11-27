@@ -6,6 +6,8 @@
 
 **Car_Traces** enregistre les trajets d'un véhicule au format **GPX 1.1** à l'aide d'une **Arduino UNO Q**, d'un récepteur GPS et d'un **Modulino Buttons**. Les traces sont stockées sur l'UNO Q et récupérables par un serveur HTTP activé à la demande.
 
+Les fichiers GPX ainsi récupérés peuvent ensuite être exploités dans des outils compatibles, tels que [gpx.studio](https://gpx.studio/), afin de visualiser les trajets effectués sur une carte et d'en analyser les caractéristiques.
+
 Ce projet illustre la collaboration entre les deux environnements de l'UNO Q :
 
 - le **MCU**, programmé en C++, lit le GPS et les boutons et pilote les LED ;
