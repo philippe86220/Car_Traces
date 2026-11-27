@@ -86,8 +86,35 @@ Une alimentation insuffisante ou instable peut entraîner des redémarrages succ
 
 ### Photographies de la réalisation
 
-*Photographies du raccordement des composants, du montage dans son boîtier et de son installation dans le véhicule à ajouter après réalisation matérielle.*
+Les photographies suivantes illustrent les différentes étapes de la réalisation matérielle de Car_Traces, depuis la préparation du boîtier jusqu'à son utilisation à bord d'un véhicule.
 
+#### Préparation du boîtier
+
+![Préparation du boîtier](docs/images/01_preparation_boitier.jpg)
+
+#### Fixation de l'Arduino UNO Q
+
+![Fixation de l'UNO Q sur entretoises en nylon](docs/images/02_fixation_uno_q.jpg)
+
+#### Assemblage des composants
+
+![Assemblage des composants](docs/images/03_assemblage.jpg)
+
+#### Boîtier terminé avec étiquette de commande
+
+![Boîtier Car_Traces terminé](docs/images/04_boitier_termine.jpg)
+
+#### Utilisation à bord d'un véhicule
+
+![Car_Traces dans le véhicule](docs/images/05_utilisation_vehicule.jpg)
+
+### Étiquette du Modulino Buttons
+
+Une planche d'étiquettes en couleur est disponible au format PDF :
+
+- [Télécharger les étiquettes Car_Traces](docs/Car_Traces_etiquettes_couleur.pdf)
+
+Les dimensions et la présentation de l'étiquette peuvent être adaptées librement en fonction du boîtier utilisé et des préférences de chacun.
 ## 3. Architecture MCU / MPU
 
 ```text
