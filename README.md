@@ -637,26 +637,59 @@ Il convient toutefois de distinguer la publication du port par Docker du démarr
 
 ## 10. Installation et mise en service
 
+### 10.1. Installation de l'application
+
 1. Télécharger le dépôt [Car_Traces](https://github.com/philippe86220/Car_Traces) depuis GitHub au format ZIP.
 2. Importer l'application dans Arduino App Lab.
-3. Vérifier la disponibilité des bibliothèques nécessaires au sketch.
+3. Vérifier la disponibilité des bibliothèques nécessaires au sketch, dont les dépendances sont déclarées dans le fichier `sketch.yaml`.
 4. Raccorder le GPS et le Modulino Buttons conformément aux raccordements décrits au chapitre 2.
 5. Lancer l'application dans Arduino App Lab.
 6. Définir **Car_Traces** comme application par défaut (`DEFAULT`) afin qu'elle démarre automatiquement à chaque mise sous tension de l'UNO Q.
 
-### Utilisation
+### 10.2. Utilisation autonome
 
-- Attendre les trois clignotements de la LED C, signalant le premier retour RPC réussi de `etat_leds`.
-- Pour enregistrer un trajet, attendre l’allumage de la LED B, indiquant la disponibilité d’un fix GPS récent. Cette attente n’est pas nécessaire pour récupérer les traces via HTTP.
+Une fois l'application installée et définie comme application par défaut, l'UNO Q fonctionne de manière autonome. L'utilisateur n'a plus besoin d'intervenir dans Arduino App Lab pour enregistrer ses trajets ou récupérer ses fichiers GPX.
+
+Aucune connexion réseau n'est nécessaire pendant l'enregistrement des trajets.
+
+#### Démarrage
+
+- Mettre l'UNO Q sous tension.
+- Attendre la fin des trois clignotements de la LED C, signalant le premier retour RPC réussi de `etat_leds()`.
+
+#### Enregistrement d'un trajet
+
+- Attendre l'allumage de la LED B, indiquant la disponibilité d'un fix GPS récent.
 - Appuyer sur le bouton **A** pour démarrer un enregistrement.
+- Vérifier l'allumage de la LED A, confirmant que l'enregistrement est actif.
 - Appuyer sur le bouton **B** pour terminer l'enregistrement.
-- Appuyer sur le bouton **C** pour activer le serveur HTTP et récupérer les fichiers GPX depuis un autre ordinateur connecté au réseau local.
+- Vérifier l'extinction de la LED A.
+
+#### Récupération et visualisation des trajets
+
+- Appuyer sur le bouton **C** pour activer le serveur HTTP.
+- Vérifier l'allumage de la LED C.
+- Récupérer les fichiers GPX depuis un autre ordinateur connecté au même réseau local que l'UNO Q, selon l'une des méthodes décrites au chapitre 7.
 - Appuyer de nouveau sur le bouton **C** pour désactiver le serveur HTTP.
+- Vérifier l'extinction de la LED C.
 
-Le programme Python crée automatiquement le dossier `data/gpx` et tente, à chaque démarrage de l'application, de réparer les fichiers GPX non fermés.
+Contrairement à l'enregistrement d'un trajet, la récupération des fichiers GPX ne nécessite pas de fix GPS récent.
 
-Une fois l'application installée et définie comme application par défaut, l'UNO Q fonctionne de manière autonome. Aucune connexion réseau n'est nécessaire pendant l'enregistrement des trajets.
+Les fichiers récupérés peuvent ensuite être exploités dans un outil compatible, tel que [gpx.studio](https://gpx.studio/), afin de visualiser les trajets sur une carte et d'en analyser les caractéristiques.
 
+### 10.3. Gestion et maintenance des fichiers GPX
+
+Le programme Python crée automatiquement le dossier `data/gpx` et tente, à chaque démarrage de l'application, de réparer les fichiers GPX non fermés, dans les conditions et avec les limites décrites au chapitre 8.
+
+Arduino App Lab permet également d'effectuer manuellement certaines opérations sur les fichiers GPX présents dans ce dossier :
+
+- consulter leur contenu XML ;
+- récupérer leur contenu par copier-coller ;
+- supprimer des fichiers.
+
+Ces opérations de maintenance restent facultatives et doivent être réalisées en dehors d'un enregistrement.
+
+Le principe de Car_Traces repose sur une utilisation autonome de l'UNO Q : le Modulino Buttons constitue l'interface matérielle de commande de l'application, tandis que le serveur HTTP permet la récupération des traces sans avoir à utiliser Arduino App Lab.
 ## 11. Vérifications réalisées et validation en conditions réelles
 
 **Vérifications déjà rapportées :** acquisition GPS et création de traces, lecture dans un outil de visualisation GPX, fonctionnement des commandes et des LED, téléchargement HTTP depuis une autre machine, consultation de `/liste` et récupération d’un GPX précis avec `-O`, réparation d'un fichier volontairement tronqué et rotation à **20 GPX**.
