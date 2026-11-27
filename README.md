@@ -1,6 +1,9 @@
+[🇬🇧 English documentation](README.md)
+
+
 # Car_Traces — Enregistreur de trajets GPS avec Arduino UNO Q
 
-> **Documentation française — 26 novembre 2026.** Le programme a fait l’objet d’essais fonctionnels et en conditions réelles, notamment la rotation à 20 fichiers GPX, la récupération après coupure d’alimentation et la reprise après interruption des données GPS.
+> **Documentation française — 27 novembre 2026.** Le programme a fait l’objet d’essais fonctionnels et en conditions réelles, notamment la rotation à 20 fichiers GPX, la récupération après coupure d’alimentation et la reprise après interruption des données GPS.
 
 ## 1. Présentation
 
@@ -753,6 +756,6 @@ La leçon centrale est la **répartition explicite des responsabilités** : le M
 
 **Simulateur pédagogique des masques binaires :** réalisé avec l’assistance de ChatGPT (OpenAI).
 
----
 
-*Documentation française destinée à être relue avant traduction anglaise et présentation sur le forum Arduino.*
+
+
